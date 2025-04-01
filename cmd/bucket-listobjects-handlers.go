@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -247,6 +248,7 @@ func (api objectAPIHandlers) ListObjectsV2Handler(w http.ResponseWriter, r *http
 		listObjectsV2Info, err = objectAPI.ListObjectsV2(ctx, bucket, prefix, token, delimiter, maxKeys, fetchOwner, startAfter)
 	}
 	if err != nil {
+		fmt.Println("erda debug1: ", err)
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL)
 		return
 	}
@@ -260,6 +262,7 @@ func (api objectAPIHandlers) ListObjectsV2Handler(w http.ResponseWriter, r *http
 	listObjectsV2Info.Objects = filterObjects
 
 	if err = DecryptETags(ctx, GlobalKMS, listObjectsV2Info.Objects); err != nil {
+		fmt.Println("erda debug2: ", err)
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL)
 		return
 	}
