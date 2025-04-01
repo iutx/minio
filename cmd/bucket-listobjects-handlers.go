@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/minio/minio/internal/crypto"
 	"github.com/minio/minio/internal/logger"
 
 	"github.com/minio/pkg/bucket/policy"
@@ -164,6 +165,14 @@ func (api objectAPIHandlers) ListObjectsV2MHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
+	filterObjects := make([]ObjectInfo, 0, len(listObjectsV2Info.Objects))
+	for _, object := range listObjectsV2Info.Objects {
+		if _, encrypted := crypto.IsEncrypted(object.UserDefined); !encrypted {
+			filterObjects = append(filterObjects, object)
+		}
+	}
+	listObjectsV2Info.Objects = filterObjects
+
 	if err = DecryptETags(ctx, GlobalKMS, listObjectsV2Info.Objects); err != nil {
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL)
 		return
@@ -241,6 +250,14 @@ func (api objectAPIHandlers) ListObjectsV2Handler(w http.ResponseWriter, r *http
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL)
 		return
 	}
+
+	filterObjects := make([]ObjectInfo, 0, len(listObjectsV2Info.Objects))
+	for _, object := range listObjectsV2Info.Objects {
+		if _, encrypted := crypto.IsEncrypted(object.UserDefined); !encrypted {
+			filterObjects = append(filterObjects, object)
+		}
+	}
+	listObjectsV2Info.Objects = filterObjects
 
 	if err = DecryptETags(ctx, GlobalKMS, listObjectsV2Info.Objects); err != nil {
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL)

@@ -1,4 +1,4 @@
-FROM minio/minio:latest
+FROM registry.erda.cloud/retag/minio:RELEASE.2022-10-24T18-35-07Z
 
 ENV PATH=/opt/bin:$PATH
 
